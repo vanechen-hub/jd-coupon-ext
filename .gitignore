@@ -1,0 +1,5 @@
+# 调试备份垃圾，不入库
+*.bak
+*.bak*
+*.temp
+.DS_Store

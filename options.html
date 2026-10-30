@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>京东领券助手 - 设置</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 600px; margin: 40px auto; padding: 0 20px; background: #f5f5f5; }
+  h1 { color: #e43; }
+  .card { background: white; border-radius: 12px; padding: 24px; margin: 20px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+  .card h2 { margin-top: 0; color: #333; font-size: 16px; }
+  .form-row { display: flex; align-items: center; margin: 16px 0; gap: 12px; }
+  label { font-weight: 500; }
+  input[type="number"] { width: 60px; padding: 6px 12px; border: 1px solid #ddd; border-radius: 6px; text-align: center; }
+  .btn { background: #e43; color: white; border: none; padding: 10px 24px; border-radius: 8px; cursor: pointer; font-size: 14px; margin: 4px; }
+  .btn:hover { background: #c31; }
+  .btn-secondary { background: #666; }
+  .btn-secondary:hover { background: #444; }
+  #status { padding: 12px; border-radius: 8px; margin-top: 16px; font-size: 13px; }
+  #status.success { background: #e6f7e6; color: #2e7d32; }
+  #status.error { background: #ffe6e6; color: #c62828; }
+  table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+  th, td { padding: 8px; text-align: left; border-bottom: 1px solid #eee; font-size: 13px; }
+  th { color: #999; font-weight: 500; }
+  .time { font-weight: 600; color: #e43; }
+</style>
+</head>
+<body>
+  <h1>🛒 京东整点领券助手</h1>
+
+  <div class="card">
+    <h2>⏰ 领券时间与目标设置</h2>
+    <div class="form-row">
+      <label>每天从</label>
+      <input type="number" id="startHour" min="0" max="23" value="8">
+      <label>点 到</label>
+      <input type="number" id="endHour" min="0" max="23" value="23">
+      <label>点，每整点自动领券</label>
+    </div>
+    <div class="form-row">
+      <label>整点大Banner:</label>
+      <input type="text" id="targetBanner" style="width: 100px; padding: 6px 12px; border: 1px solid #ddd; border-radius: 6px;" value="29-20" placeholder="如 29-20">
+      <label>整点小券(逗号分隔):</label>
+      <input type="text" id="targetCoupons" style="width: 180px; padding: 6px 12px; border: 1px solid #ddd; border-radius: 6px;" value="10, 4-3" placeholder="如 10, 4-3">
+    </div>
+    <div class="form-row" style="font-size:12px;color:#999;margin-top:-8px;">
+      <span>整点页只有「整点秒杀」一个领取入口：扩展会自动点击当时<b>真正可领</b>的秒杀按钮(奖品按小时轮换，如 ¥20金券/¥10/满4减3)，商品列表里的「券丨满4减3」不会被误点。上面的关键字仅用于<b>排序优先级</b>，可留默认。写法：满29减20→<b>29-20</b>、¥10→<b>10</b>、满4减3→<b>4-3</b>。</span>
+    </div>
+    <div style="margin-top: 12px;">
+      <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+        <input type="checkbox" id="hourlyEnabled" checked>
+        整点自动领券（关闭后整点轮及其并行特价页都不抢，半点不受影响）
+      </label>
+    </div>
+    <div style="margin-top: 12px;">
+      <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+        <input type="checkbox" id="notifyEnabled" checked>
+        领券完成后发送系统通知
+      </label>
+    </div>
+    <div style="margin-top: 16px;">
+      <button class="btn" id="saveBtn">💾 保存设置</button>
+      <button class="btn btn-secondary" id="testBtn">🧪 立即测试领券</button>
+    </div>
+    <div id="status"></div>
+  </div>
+
+  <div class="card">
+    <h2>📋 领券记录</h2>
+    <table>
+      <thead><tr><th>时间</th><th>结果</th></tr></thead>
+      <tbody id="historyTable">
+        <tr><td colspan="2" style="color:#999;text-align:center;">暂无记录</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>⏱️ 抢券计时日志（每轮自动记录，用于复盘改进）</h2>
+    <div style="font-size:12px;color:#999;margin-bottom:8px;">@后的数字 = 相对整点(T)的毫秒数，负数=早于整点。重点看 button-ready / btn=立即领取 出现在 T 之前多少，以及 outcome。</div>
+    <div style="margin: 8px 0;">
+      <button class="btn btn-secondary" id="exportBtn">📥 导出 jd-racelog.json</button>
+      <button class="btn btn-secondary" id="copyBtn">📋 复制 JSON</button>
+      <span id="exportStatus" style="font-size:12px;color:#2e7d32;margin-left:8px;"></span>
+    </div>
+    <div id="raceLog" style="font-size:12px;font-family:ui-monospace,Menlo,monospace;color:#333;">暂无记录</div>
+  </div>
+
+  <div class="card">
+    <h2>📖 使用说明</h2>
+    <ol style="font-size: 14px; color: #555; line-height: 1.8;">
+      <li>确保 Chrome 已登录京东（<a href="https://jd.com" target="_blank">jd.com</a>）</li>
+      <li>整点(8–23点)：扩展在 <b>T-90秒</b>刷新页面、轮询等按钮真正出现，整点(T)起在原地高速点击约2秒</li>
+      <li>半点(10:30/11:30/16:30)：同样早刷新等渲染，只领 5-4(¥4满5可用)，到点高速点击</li>
+      <li>⚠️ 该活动页加载要 10~60 秒，所以必须提前刷新；点击靠 chrome.debugger 发"可信"事件（会显示"正在调试此浏览器"横幅，属正常）</li>
+      <li>抢 ¥20金券 是真·毫秒级秒杀，常常秒光，按上面的计时日志逐轮调整</li>
+    </ol>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>

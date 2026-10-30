@@ -1,0 +1,48 @@
+{
+  "manifest_version": 3,
+  "name": "京东整点领券助手",
+  "version": "3.19",
+  "description": "每天8:00-23:00整点自动领取京东优惠券(大Banner)，自适应识别半点抢券时段(如10:30/16:30)自动定时领取；整点并行狙击「天天半价」页 ≤9.9 特价商品(仅抢先打开商品页并提醒，绝不自动下单)。确保已登录京东。",
+  "permissions": [
+    "alarms",
+    "storage",
+    "notifications",
+    "scripting",
+    "debugger",
+    "downloads",
+    "webRequest",
+    "tabs"
+  ],
+  "host_permissions": [
+    "https://*.jd.com/*",
+    "https://*.jd.cn/*",
+    "https://hour.jd.com/*",
+    "https://pro.m.jd.com/*"
+  ],
+  "externally_connectable": {
+    "matches": [
+      "https://*.jd.com/*",
+      "https://*.jd.cn/*",
+      "https://pro.m.jd.com/*",
+      "https://hour.jd.com/*"
+    ]
+  },
+  "action": {
+    "default_title": "京东领券助手"
+  },
+  "options_page": "options.html",
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://hour.jd.com/*"
+      ],
+      "js": [
+        "content-flash.js"
+      ],
+      "run_at": "document_start"
+    }
+  ]
+}
